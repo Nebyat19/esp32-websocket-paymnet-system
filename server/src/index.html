@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Payment Gateway</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background:  #303436;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .status {
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            width: 80%;
+            max-width: 400px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .status-info {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .status-success {
+            background-color: rgba(76, 175, 80, 0.8);
+            color: #fff;
+        }
+
+        .status-icon {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+
+        canvas {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            display: none;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        #qrcode.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        footer {
+            position: absolute;
+            bottom: 10px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>QR Code Payment Gateway</h1>
+    <div id="message" class="status status-info">
+        <i class="fas fa-info-circle status-icon"></i>
+        <span>Waiting for RFID card scan...</span>
+    </div>
+    <canvas id="qrcode"></canvas>
+    <footer>Secure Payment Powered by <strong>Chapa</strong></footer>
+
+    <script>
+        const ws = new WebSocket('ws://localhost:8000');
+
+        ws.onopen = () => {
+            updateMessage('Waiting for RFID card scan...', 'info');
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            if (data.type === 'checkout') {
+                generateQRCode(data.url);
+                updateMessage('Please scan the QR code to complete the payment.', 'info');
+                document.getElementById('qrcode').classList.add('show');
+            }
+
+            if (data.type === 'payment-complete') {
+                updateMessage('Payment finished successfully!', 'success');
+                document.getElementById('qrcode').classList.remove('show');
+
+                setTimeout(() => {
+                    resetToInitialState();
+                }, 5000);
+            }
+        };
+
+        function generateQRCode(url) {
+            const qrElement = document.getElementById('qrcode');
+
+            if (!qrElement) {
+                console.error('QR Code container element not found!');
+                return;
+            }
+
+            if (!url || typeof url !== 'string') {
+                console.error('Invalid URL provided for QR code generation:', url);
+                return;
+            }
+
+            QRCode.toCanvas(qrElement, url, { width: 256 }, function (error) {
+                if (error) {
+                    console.error('QR Code generation failed:', error);
+                } else {
+                    console.log('QR Code generated successfully for URL:', url);
+                }
+            });
+        }
+
+        function updateMessage(text, type) {
+            const messageElement = document.getElementById('message');
+            messageElement.className = `status status-${type}`;
+            messageElement.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-circle'} status-icon"></i>
+                <span>${text}</span>
+            `;
+        }
+
+        function resetToInitialState() {
+            updateMessage('Waiting for RFID card scan...', 'info');
+            document.getElementById('qrcode').classList.remove('show');
+        }
+    </script>
+</body>
+
+</html>
