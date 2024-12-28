@@ -1,23 +1,31 @@
 require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
-const { initWebSocket, notifyALL } = require('./websocket');
+const { initWebSocket, notifyALL, notifyPayemtProcess } = require('./websocket');
 const { startPayment, verifyPayment } = require('./chapa');
-const { sendPaymentLink } = require('./notifier');
+
 const app = express();
 
 app.use(express.json());
+
 app.get('/', (req, res) => {
     res.send("Welcome to the gate payment system");
 }
 )
-app.get('/callback/:tx_ref/', async (req, res) => {
-    const txRef = req.params.tx_ref; // Extract tx_ref from the URL
+
+
+// Route for handling /callback
+app.get('/callback', async (req, res) => {
+    const { trx_ref, status } = req.body;
+
+    notifyPayemtProcess()
     try {
-        const result = await verifyPayment(txRef);
+        const result = await verifyPayment(trx_ref);
 
         notifyALL();
-        res.status(200).send("Payment successful, gate opening...");
+        return res.status(200).send("Payment successful, gate opening...");
+
+
     } catch (error) {
 
         return res.status(500).send(error.message);

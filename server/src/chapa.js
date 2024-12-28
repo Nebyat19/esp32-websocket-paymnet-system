@@ -20,7 +20,7 @@ const initializePayment = async ({
         currency: 'ETB',
         email: email,
         phone_number: phone,
-        tx_ref: 'txn-' + uid+'-'+Date.now(),
+        tx_ref: 'txn-' + uid + '-' + Date.now(),
         callback_url: process.env.CALL_BACK_URL,
     }
 
@@ -44,15 +44,24 @@ const initializePayment = async ({
 };
 
 const verifyPayment = async (tx_ref) => {
-   
+    let response;
+    var raw = ""; var requestOptions = {
+        method: 'GET',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
+    };
     try {
-        const response = await axios.get(`https://api.chapa.co/v1/verify/${tx_ref}`, {
-            headers: {
-                'Authorization': 'Bearer ' + process.env.CHAPA_API_KEY,
-            }
+        response = await fetch(`https://api.chapa.co/v1/transaction/verify/${tx_ref}`, {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
         });
 
-        return response.data.status === 'success';
+        response = await response.text();
+        response = JSON.parse(response)
+        if (response.status === 'success') return true;
+        else throw new Error(response.message);
     } catch (error) {
         throw new Error('Error verifying payment: ' + error.message);
     }

@@ -47,7 +47,13 @@ const initWebSocket = (server) => {
         });
     });
 };
-
+const notifyPayemtProcess = () => {
+    wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({ type: 'payment-processing' }));
+        }
+    });
+}
 const notifyALL = () => {
     wss.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
@@ -57,4 +63,4 @@ const notifyALL = () => {
     });
 };
 
-module.exports = { initWebSocket, notifyALL };
+module.exports = { initWebSocket, notifyALL, notifyPayemtProcess };

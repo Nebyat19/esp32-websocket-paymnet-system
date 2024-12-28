@@ -140,6 +140,9 @@
                 document.getElementById('qrcode').classList.add('show');
             }
 
+            if (data.type=='payment-processing') {
+                updateMessage('Payment processing...', 'info');
+            }
             if (data.type === 'payment-complete') {
                 updateMessage('Payment finished successfully!', 'success');
                 document.getElementById('qrcode').classList.remove('show');
