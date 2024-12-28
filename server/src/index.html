@@ -10,7 +10,7 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background:  #303436;
+            background: #303436;
             color: #fff;
             margin: 0;
             padding: 0;
@@ -101,7 +101,35 @@
     <footer>Secure Payment Powered by <strong>Chapa</strong></footer>
 
     <script>
-        const ws = new WebSocket('ws://localhost:8000');
+        let ws;
+
+        function connectWebSocket() {
+            try {
+                ws = new WebSocket('ws://localhost:8000');
+
+                ws.onclose = () => {
+                    updateMessage('Connection to server lost. Please refresh the page.', 'error');
+                    // Attempt to reconnect after a delay
+                    setTimeout(connectWebSocket, 2000); // retry after 2 seconds
+                };
+
+                ws.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                };
+
+                ws.onopen = () => {
+                    console.log('Connected to WebSocket server');
+                    // Reset the message if the connection is successful
+                    updateMessage('Connected to the server', 'success');
+                };
+
+            } catch (error) {
+                console.error('Failed to connect to WebSocket server:', error);
+            }
+        }
+
+        // Initial connection attempt
+        connectWebSocket();
 
         ws.onopen = () => {
             updateMessage('Waiting for RFID card scan...', 'info');
