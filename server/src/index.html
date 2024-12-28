@@ -109,7 +109,7 @@
 
                 ws.onclose = () => {
                     updateMessage('Connection to server lost. Please refresh the page.', 'error');
-                    // Attempt to reconnect after a delay
+                    document.getElementById('qrcode').classList.remove('show');
                     setTimeout(connectWebSocket, 2000); // retry after 2 seconds
                 };
 
@@ -117,11 +117,8 @@
                     console.error('WebSocket error:', error);
                 };
 
-                ws.onopen = () => {
-                    console.log('Connected to WebSocket server');
-                    // Reset the message if the connection is successful
-                    updateMessage('Connected to the server', 'success');
-                };
+
+
 
             } catch (error) {
                 console.error('Failed to connect to WebSocket server:', error);
@@ -130,9 +127,8 @@
 
         // Initial connection attempt
         connectWebSocket();
-
         ws.onopen = () => {
-            updateMessage('Waiting for RFID card scan...', 'info');
+            updateMessage('Waiting for card scan...', 'info');
         };
 
         ws.onmessage = (event) => {

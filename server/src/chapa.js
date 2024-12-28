@@ -16,12 +16,12 @@ const initializePayment = async ({
 
 }) => {
     const paymentDetails = {
-        amount: 100,
+        amount: 1,
         currency: 'ETB',
         email: email,
         phone_number: phone,
         tx_ref: 'txn-' + uid+'-'+Date.now(),
-        redirect_url: 'http://your-server/callback',
+        callback_url: process.env.CALL_BACK_URL,
     }
 
     const requestOptions = {
