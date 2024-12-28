@@ -1,25 +1,29 @@
 const WebSocket = require('ws');
 const { initiatePayment } = require('./payment');
 
+
 let wsClients = {};
 let wss = null
+const User = {
+    email: 'user@example.com',
+    phone: '+1234567890'
+}
 const initWebSocket = (server) => {
 
     wss = new WebSocket.Server({ server });
     wss.on('connection', (ws) => {
         console.log('Client connected');
 
-        ws.on('message', async (message) => {
-            console.log('Received message:', message);
+        ws.on('message', async (UID) => {
+            console.log('Received message:', UID.toString());
 
             // Check if the message is a valid UID (you can improve this by validating the UID format)
-            if (message) { // Assuming UID is a 12-character string
+            if (UID) { // Assuming UID is a 12-character string
                 try {
-                    const email = 'user@example.com'; // You can add logic here to fetch the email
-                    const phone = '+1234567890'; // Similarly, fetch the phone number
+
 
                     // Initiate payment
-                    const paymentLink = await initiatePayment(message, email, phone);
+                    const paymentLink = await initiatePayment(UID.toString(), User.email, User.phone);
 
 
                     wss.clients.forEach(client => {

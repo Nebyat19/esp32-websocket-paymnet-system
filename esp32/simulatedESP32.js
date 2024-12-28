@@ -31,7 +31,7 @@ function connectWebSocket() {
     });
 
     ws.on('close', () => {
-      setTimeout(connectWebSocket, 2000);
+      setTimeout(connectWebSocket, 10000);
       console.log('Connection closed');
     });
   } catch (error) {
