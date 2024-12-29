@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 
 app.get('/', (req, res) => {
-    res.send("Welcome to the gate payment system");
+    res.send("webhook is working");
 }
 )
 
