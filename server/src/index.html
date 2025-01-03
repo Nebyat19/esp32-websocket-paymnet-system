@@ -151,6 +151,14 @@
                     resetToInitialState();
                 }, 5000);
             }
+            if (data.type === 'payment-failed') {
+                updateMessage('Payment failed. Please try again.', 'error');
+                document.getElementById('qrcode').classList.remove('show');
+
+                setTimeout(() => {
+                    resetToInitialState();
+                }, 5000);
+            }
         };
 
         function generateQRCode(url) {
