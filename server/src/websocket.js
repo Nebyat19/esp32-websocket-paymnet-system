@@ -67,4 +67,14 @@ const notifyALL = () => {
     });
 };
 
-module.exports = { initWebSocket, notifyALL, notifyPayemtProcess };
+const sendMessagetoClient = ({type,text}) => {
+    wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({ type, text }));
+        }
+    });
+};
+
+
+module.exports = { initWebSocket, notifyALL, notifyPayemtProcess, sendMessagetoClient };
+
