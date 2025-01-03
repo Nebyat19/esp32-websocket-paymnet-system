@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
-const { initWebSocket, notifyALL, notifyPayemtProcess } = require('./websocket');
+const { initWebSocket, notifyALL, notifyPayemtProcess, sendMessagetoClient } = require('./websocket');
 const { startPayment, verifyPayment } = require('./chapa');
 
 const app = express();
@@ -27,7 +27,7 @@ app.get('/callback', async (req, res) => {
 
 
     } catch (error) {
-
+        sendMessagetoClient({ type: "payment-failed", text: error.message })
         return res.status(500).send(error.message);
     }
 });
